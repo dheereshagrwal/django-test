@@ -1,5 +1,4 @@
 """
-ASGI config for hello_world_project project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -11,6 +10,6 @@ import os
 
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hello_world_project.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'website.settings')
 
 application = get_asgi_application()
