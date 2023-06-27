@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,7 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "category",
-    "storages"
+    "storages",
 ]
 
 MIDDLEWARE = [
@@ -73,8 +75,16 @@ TEMPLATES = [
 WSGI_APPLICATION = "hello_world_project.wsgi.app"
 
 
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": config("REDIS_URL"),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    }
+}
+
 
 # DATABASES = {
 #     "default": {
@@ -85,11 +95,8 @@ WSGI_APPLICATION = "hello_world_project.wsgi.app"
 
 import dj_database_url
 
-DATABASES = {
-    "default": dj_database_url.parse(
-        "postgresql://postgres:wlPDr1pZViuet5yAnNjy@containers-us-west-207.railway.app:6728/railway"
-    )
-}
+DATABASES = {"default": dj_database_url.parse(config("DB_URL"))}  # type: ignore
+
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -136,7 +143,6 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-from decouple import config
 
 AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY")
