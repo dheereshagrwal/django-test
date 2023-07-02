@@ -11,6 +11,6 @@ class ProductSerializer(serializers.ModelSerializer):
 class ProductDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = "__all__"
+        exclude = ("id", "sold", "created_date", "modified_date", "category", "is_available")
         lookup_field = "slug"
         extra_kwargs = {"url": {"lookup_field": "slug"}}
