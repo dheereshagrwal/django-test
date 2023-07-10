@@ -17,9 +17,21 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from . import views
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+)
+from django_ratelimit.decorators import ratelimit
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("create-user/", views.create_user, name="create_user"),
+    path(
+        "api/token/",
+        ratelimit(key="user_or_ip", rate="5/h", block=True)(TokenObtainPairView.as_view()),
+        name="token_obtain_pair",
+    ),
     path("", include("category.urls")),
     path("", include("product.urls")),
 ]

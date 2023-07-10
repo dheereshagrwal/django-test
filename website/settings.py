@@ -77,6 +77,17 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "website.wsgi.app"
 
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    )
+}
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+}
 
 CACHES = {
     "default": {
@@ -87,6 +98,8 @@ CACHES = {
         },
     }
 }
+
+RATELIMIT_USE_CACHE = 'default'
 
 
 # DATABASES = {
@@ -149,7 +162,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY")
-AWS_STORAGE_BUCKET_NAME = "django-test-dheeresh"
+AWS_STORAGE_BUCKET_NAME = "animebits"
+AWS_S3_REGION_NAME = "us-east-005"
+AWS_S3_ENDPOINT = f"s3.{AWS_S3_REGION_NAME}.backblazeb2.com"
+AWS_S3_ENDPOINT_URL = f"https://{AWS_S3_ENDPOINT}"
 DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
-AWS_S3_CUSTOM_DOMAIN = "%s.s3.amazonaws.com" % AWS_STORAGE_BUCKET_NAME
