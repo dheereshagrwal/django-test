@@ -43,6 +43,10 @@ INSTALLED_APPS = [
     "category",
     "storages",
     "product",
+    "oauth2_provider",
+    "social_django",
+    "drf_social_oauth2",
+    "cart",
 ]
 
 MIDDLEWARE = [
@@ -58,6 +62,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "website.urls"
+# CSRF_TRUSTED_ORIGINS = ["http://localhost:3000/", "http://127.0.0.1:8000"]
 
 TEMPLATES = [
     {
@@ -70,6 +75,8 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "social_django.context_processors.backends",
+                "social_django.context_processors.login_redirect",
             ],
         },
     },
@@ -79,16 +86,23 @@ WSGI_APPLICATION = "website.wsgi.app"
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "oauth2_provider.contrib.rest_framework.OAuth2Authentication",  # django-oauth-toolkit >= 1.0.0
+        "drf_social_oauth2.authentication.SocialAuthentication",
     )
 }
-from datetime import timedelta
+AUTHENTICATION_BACKENDS = (
+    "drf_social_oauth2.backends.DjangoOAuth2",
+    "django.contrib.auth.backends.ModelBackend",
+    # Google  OAuth2
+    "social_core.backends.google.GoogleOAuth2",
+)
 
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-}
-
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config("GOOGLE_CLIENT_ID")
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config("GOOGLE_CLIENT_SECRET")
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/userinfo.profile",
+]
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
@@ -99,7 +113,7 @@ CACHES = {
     }
 }
 
-RATELIMIT_USE_CACHE = 'default'
+RATELIMIT_USE_CACHE = "default"
 
 
 # DATABASES = {

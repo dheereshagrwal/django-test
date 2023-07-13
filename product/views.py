@@ -2,30 +2,18 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import Product
 from .serializer import ProductSerializer, ProductDetailsSerializer
-
+from rest_framework import status
 
 @api_view(["GET"])
 def get_products(request):
-    print("get_products")
-
-    # Check if category is provided
-
     categories = request.GET.getlist("category")
-
-    # Retrieve the page number from the request
-    page = request.GET.get("page")
-    limit = request.GET.get("limit")
-    if not page:
-        page = 1
-    if not limit:
-        limit = 10
+    page = request.GET.get("page", 1)
+    limit = request.GET.get("limit", 10)
 
     limit = int(limit)
     page = int(page)
-    # Calculate the start and end index based on the page number
     start_index = (page - 1) * limit
     end_index = page * limit
-    print(start_index, end_index)
 
     if categories:
         products = Product.objects.filter(category__slug__in=categories).order_by(
@@ -37,14 +25,15 @@ def get_products(request):
         ]
 
     serializer = ProductSerializer(products, many=True)
-
-    # Return serialized data
-    return Response(serializer.data)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])
 def get_product(request, product_slug):
-    category = Product.objects.get(slug=product_slug)
-    print("get_product")
-    serializer = ProductDetailsSerializer(category, many=False)
-    return Response(serializer.data)
+    try:
+        product = Product.objects.get(slug=product_slug)
+    except Product.DoesNotExist:
+        return Response({"detail": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = ProductDetailsSerializer(product)
+    return Response(serializer.data, status=status.HTTP_200_OK)

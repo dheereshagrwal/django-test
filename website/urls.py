@@ -17,23 +17,17 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from . import views
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-)
 from django_ratelimit.decorators import ratelimit
+from django.urls import re_path
+from django.views.decorators.csrf import csrf_exempt
 
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("create-user/", views.create_user, name="create_user"),
-    path(
-        "api/token/",
-        ratelimit(key="user_or_ip", rate="5/h", block=True)(TokenObtainPairView.as_view()),
-        name="token_obtain_pair",
-    ),
+    re_path(r"^auth/", include("drf_social_oauth2.urls", namespace="drf")),
     path("", include("category.urls")),
     path("", include("product.urls")),
+    path("", include("cart.urls")),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
