@@ -108,7 +108,7 @@ def add_cart_item(request, cart_id, product_slug):
 
 @api_view(["PATCH"])
 def update_cart_item(request, cart_id, product_slug):
-    quantity = request.GET.get("quantity")
+    quantity = request.data.get("quantity")
     if not quantity:
         return Response(
             {"detail": "Quantity is required"}, status=status.HTTP_400_BAD_REQUEST
