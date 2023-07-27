@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view
 from .models import Cart, CartItem
 from product.models import Product
 from .serializer import CartSerializer, CartItemSerializer
-
+import re
 from rest_framework import status
 
 
@@ -73,17 +73,6 @@ def get_cart_items(request, cart_id):
 
 @api_view(["POST"])
 def add_cart_item(request, cart_id, product_slug):
-    print(cart_id, product_slug)
-    if not cart_id:
-        return Response(
-            {"detail": "Cart ID is required"}, status=status.HTTP_400_BAD_REQUEST
-        )
-
-    if not product_slug:
-        return Response(
-            {"detail": "Product slug is required"}, status=status.HTTP_400_BAD_REQUEST
-        )
-
     try:
         cart = Cart.objects.get(cart_id=cart_id)
     except Cart.DoesNotExist:
@@ -113,19 +102,11 @@ def update_cart_item(request, cart_id, product_slug):
         return Response(
             {"detail": "Quantity is required"}, status=status.HTTP_400_BAD_REQUEST
         )
-    if not quantity.isdigit():
+    if not re.match(r"^[1-9]\d*$", quantity):
         return Response(
-            {"detail": "Quantity must be a number"}, status=status.HTTP_400_BAD_REQUEST
+            {"detail": "Quantity must be a positive integer greater than 1"},
+            status=status.HTTP_400_BAD_REQUEST,
         )
-    if not cart_id:
-        return Response(
-            {"detail": "Cart ID is required"}, status=status.HTTP_400_BAD_REQUEST
-        )
-    if not product_slug:
-        return Response(
-            {"detail": "Product slug is required"}, status=status.HTTP_400_BAD_REQUEST
-        )
-
     try:
         cart = Cart.objects.get(cart_id=cart_id)
     except Cart.DoesNotExist:
@@ -145,24 +126,14 @@ def update_cart_item(request, cart_id, product_slug):
             {"detail": "Cart item not found"}, status=status.HTTP_404_NOT_FOUND
         )
 
-    if quantity is not None:
-        cart_item.quantity = quantity
-        cart_item.save()
+    cart_item.quantity = quantity
+    cart_item.save()
 
     return Response({"detail": "Cart updated"}, status=status.HTTP_200_OK)
 
 
 @api_view(["DELETE"])
 def remove_cart_item(request, cart_id, product_slug):
-    if not cart_id:
-        return Response(
-            {"detail": "Cart ID is required"}, status=status.HTTP_400_BAD_REQUEST
-        )
-    if not product_slug:
-        return Response(
-            {"detail": "Product slug is required"}, status=status.HTTP_400_BAD_REQUEST
-        )
-
     try:
         cart = Cart.objects.get(cart_id=cart_id)
     except Cart.DoesNotExist:
